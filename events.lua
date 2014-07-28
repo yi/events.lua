@@ -3,7 +3,7 @@ local PREFIX_LISTENERS = "__listeners_"
 local LEN_PREFIX_LISTENERS = PREFIX_LISTENERS:len()
 local findOrCreateListenerTable
 findOrCreateListenerTable = function(self, event, useWeakReference)
-  local keyEvent = tostring(PREFIX_LISTENERS) .. "{event}"
+  local keyEvent = tostring(PREFIX_LISTENERS) .. tostring(event)
   local listenerTable = rawget(self, keyEvent)
   if type(listenerTable) == "table" then
     return listenerTable
@@ -38,15 +38,16 @@ once = function(self, event, listener)
 end
 local removeListener
 removeListener = function(self, event, listener)
+  print("[events::removeListener] self:" .. tostring(self) .. ", event:" .. tostring(event))
   assert(type(self) == "table", tostring(self) .. " is not a table")
   local useWeakReference = rawget(self, IDENTIFIER)
   assert(useWeakReference ~= nil, "self is not valid EventEmitter")
-  local keyEvent = tostring(PREFIX_LISTENERS) .. "{event}"
+  local keyEvent = tostring(PREFIX_LISTENERS) .. tostring(event)
   local listeners = rawget(self, keyEvent)
   if listeners then
     rawset(listeners, listener, nil)
   end
-  keyEvent = tostring(PREFIX_LISTENERS) .. "{event}:once"
+  keyEvent = tostring(PREFIX_LISTENERS) .. tostring(event) .. ":once"
   listeners = rawget(self, keyEvent)
   if listeners then
     rawset(listeners, listener, nil)
@@ -55,12 +56,13 @@ removeListener = function(self, event, listener)
 end
 local removeAllListeners
 removeAllListeners = function(self, event)
+  print("[events::removeAllListeners] self:" .. tostring(self) .. ", event:" .. tostring(event))
   assert(type(self) == "table", tostring(self) .. " is not a table")
   assert(type(self) == "table" and rawget(self, IDENTIFIER) ~= nil, "self is not valid EventEmitter")
   if event ~= nil then
-    local keyEvent = tostring(PREFIX_LISTENERS) .. "{event}"
+    local keyEvent = tostring(PREFIX_LISTENERS) .. tostring(event)
     rawset(self, keyEvent, nil)
-    keyEvent = tostring(PREFIX_LISTENERS) .. "{event}:once"
+    keyEvent = tostring(PREFIX_LISTENERS) .. tostring(event) .. ":once"
     rawset(self, keyEvent, nil)
   else
     local listToRemove = { }
@@ -78,18 +80,42 @@ removeAllListeners = function(self, event)
 end
 local emit
 emit = function(self, event, ...)
+  print("[events::emit] self:" .. tostring(self) .. ", event:" .. tostring(event))
   assert(type(self) == "table", tostring(self) .. " is not a table")
-  return assert(type(self) == "table" and rawget(self, IDENTIFIER) ~= nil, "self is not valid EventEmitter")
+  assert(type(self) == "table" and rawget(self, IDENTIFIER) ~= nil, "self is not valid EventEmitter")
+  local keyEvent = tostring(PREFIX_LISTENERS) .. tostring(event)
+  local listeners = rawget(self, keyEvent)
+  if type(listeners) == "table" then
+    for listener in pairs(listeners) do
+      local status, err = pcall(listener, ...)
+      if not (status) then
+        print("[events::" .. tostring(self) .. "::emit] err:" .. tostring(err))
+      end
+    end
+  end
+  keyEvent = tostring(PREFIX_LISTENERS) .. tostring(event) .. ":once"
+  listeners = rawget(self, keyEvent)
+  if type(listeners) == "table" then
+    for listener in pairs(listeners) do
+      local status, err = pcall(listener, ...)
+      if not (status) then
+        print("[events::" .. tostring(self) .. "::emit] err:" .. tostring(err))
+      end
+    end
+  end
+  rawset(self, keyEvent, nil)
+  return self
 end
 return {
   EventEmitter = function(tbl, useWeakReference)
+    print("[events::EventEmitter] tbl:" .. tostring(tbl) .. ", useWeakReference:" .. tostring(useWeakReference))
     if not (type(tbl) == "table") then
       tbl = { }
     end
     if tbl[IDENTIFIER] ~= nil then
       return print("[events::EventEmitter] " .. tostring(tbl) .. " is already an EventEmitter")
     end
-    rawset(tbl, IDENTIFIER, useWeakReference)
+    rawset(tbl, IDENTIFIER, (not not useWeakReference))
     tbl.on = addListener
     tbl.addListener = addListener
     tbl.once = once
