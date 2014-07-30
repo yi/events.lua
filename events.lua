@@ -80,7 +80,6 @@ removeAllListeners = function(self, event)
 end
 local emit
 emit = function(self, event, ...)
-  print("[events::emit] self:" .. tostring(self) .. ", event:" .. tostring(event))
   assert(type(self) == "table", tostring(self) .. " is not a table")
   assert(type(self) == "table" and rawget(self, IDENTIFIER) ~= nil, "self is not valid EventEmitter")
   local keyEvent = tostring(PREFIX_LISTENERS) .. tostring(event)

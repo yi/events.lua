@@ -74,7 +74,7 @@ removeAllListeners = (self, event)->
   return self   -- chainable
 
 emit = (self, event, ...)->
-  print "[events::emit] self:#{self}, event:#{event}"
+  --print "[events::emit] self:#{self}, event:#{event}"
 
   assert type(self) == "table", "#{self} is not a table"
   assert(type(self) == "table" and rawget(self, IDENTIFIER) != nil, "self is not valid EventEmitter")
