@@ -102,7 +102,7 @@ return {
   -- @param useWeakReference, when true will using weak table to hold event listeners
   EventEmitter: (tbl, useWeakReference)->
 
-    print "[events::EventEmitter] tbl:#{tbl}, useWeakReference:#{useWeakReference}"
+    --print "[events::EventEmitter] tbl:#{tbl}, useWeakReference:#{useWeakReference}"
 
     tbl = {} unless type(tbl) == "table"
 

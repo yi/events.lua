@@ -107,7 +107,6 @@ emit = function(self, event, ...)
 end
 return {
   EventEmitter = function(tbl, useWeakReference)
-    print("[events::EventEmitter] tbl:" .. tostring(tbl) .. ", useWeakReference:" .. tostring(useWeakReference))
     if not (type(tbl) == "table") then
       tbl = { }
     end
