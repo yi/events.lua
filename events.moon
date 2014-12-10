@@ -6,6 +6,7 @@ PREFIX_LISTENERS = "__listeners_"
 LEN_PREFIX_LISTENERS = PREFIX_LISTENERS\len!
 
 findOrCreateListenerTable = (self, event, useWeakReference)->
+  assert event, "invalid event:#{event}, self:#{@}"
   keyEvent = "#{PREFIX_LISTENERS}#{event}"
   listenerTable = rawget self, keyEvent
   return listenerTable if type(listenerTable) == "table"    -- found
@@ -16,6 +17,8 @@ findOrCreateListenerTable = (self, event, useWeakReference)->
   return listenerTable
 
 addListener = (self, event, listener)->
+  --console.dir @ unless event
+  assert event and listener, "invalid event:#{event} or listener:#{listener}, self:#{@}"
   assert type(self) == "table", "#{self} is not a table"
   useWeakReference = rawget(self, IDENTIFIER)
   assert(useWeakReference != nil, "self is not valid EventEmitter")
@@ -29,6 +32,7 @@ addListener = (self, event, listener)->
 
 
 once = (self, event, listener)->
+  assert event and listener, "invalid event:#{event} or listener:#{listener}, self:#{@}"
   assert type(self) == "table", "#{self} is not a table"
   useWeakReference = rawget(self, IDENTIFIER)
   assert(useWeakReference != nil, "self is not valid EventEmitter")
@@ -39,7 +43,8 @@ once = (self, event, listener)->
   return self   -- chainable
 
 removeListener = (self, event, listener)->
-  print "[events::removeListener] self:#{self}, event:#{event}"
+  assert event and listener, "invalid event:#{event} or listener:#{listener}, self:#{@}"
+  --print "[events::removeListener] self:#{self}, event:#{event}"
   assert type(self) == "table", "#{self} is not a table"
   useWeakReference = rawget(self, IDENTIFIER)
   assert(useWeakReference != nil, "self is not valid EventEmitter")
@@ -75,7 +80,7 @@ removeAllListeners = (self, event)->
 
 emit = (self, event, ...)->
   --print "[events::emit] self:#{self}, event:#{event}"
-
+  assert event, "invalid event:#{event}"
   assert type(self) == "table", "#{self} is not a table"
   assert(type(self) == "table" and rawget(self, IDENTIFIER) != nil, "self is not valid EventEmitter")
 

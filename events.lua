@@ -3,6 +3,7 @@ local PREFIX_LISTENERS = "__listeners_"
 local LEN_PREFIX_LISTENERS = PREFIX_LISTENERS:len()
 local findOrCreateListenerTable
 findOrCreateListenerTable = function(self, event, useWeakReference)
+  assert(event, "invalid event:" .. tostring(event) .. ", self:" .. tostring(self))
   local keyEvent = tostring(PREFIX_LISTENERS) .. tostring(event)
   local listenerTable = rawget(self, keyEvent)
   if type(listenerTable) == "table" then
@@ -19,6 +20,7 @@ findOrCreateListenerTable = function(self, event, useWeakReference)
 end
 local addListener
 addListener = function(self, event, listener)
+  assert(event and listener, "invalid event:" .. tostring(event) .. " or listener:" .. tostring(listener) .. ", self:" .. tostring(self))
   assert(type(self) == "table", tostring(self) .. " is not a table")
   local useWeakReference = rawget(self, IDENTIFIER)
   assert(useWeakReference ~= nil, "self is not valid EventEmitter")
@@ -28,6 +30,7 @@ addListener = function(self, event, listener)
 end
 local once
 once = function(self, event, listener)
+  assert(event and listener, "invalid event:" .. tostring(event) .. " or listener:" .. tostring(listener) .. ", self:" .. tostring(self))
   assert(type(self) == "table", tostring(self) .. " is not a table")
   local useWeakReference = rawget(self, IDENTIFIER)
   assert(useWeakReference ~= nil, "self is not valid EventEmitter")
@@ -38,7 +41,7 @@ once = function(self, event, listener)
 end
 local removeListener
 removeListener = function(self, event, listener)
-  print("[events::removeListener] self:" .. tostring(self) .. ", event:" .. tostring(event))
+  assert(event and listener, "invalid event:" .. tostring(event) .. " or listener:" .. tostring(listener) .. ", self:" .. tostring(self))
   assert(type(self) == "table", tostring(self) .. " is not a table")
   local useWeakReference = rawget(self, IDENTIFIER)
   assert(useWeakReference ~= nil, "self is not valid EventEmitter")
@@ -80,6 +83,7 @@ removeAllListeners = function(self, event)
 end
 local emit
 emit = function(self, event, ...)
+  assert(event, "invalid event:" .. tostring(event))
   assert(type(self) == "table", tostring(self) .. " is not a table")
   assert(type(self) == "table" and rawget(self, IDENTIFIER) ~= nil, "self is not valid EventEmitter")
   local keyEvent = tostring(PREFIX_LISTENERS) .. tostring(event)
