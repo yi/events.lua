@@ -1,6 +1,11 @@
 local IDENTIFIER = "__event_emitter"
 local PREFIX_LISTENERS = "__listeners_"
 local LEN_PREFIX_LISTENERS = PREFIX_LISTENERS:len()
+local traceback
+traceback = function(err)
+  print("LUA ERROR: " .. tostring(err) .. "\n")
+  return print(debug.traceback("", 2))
+end
 local findOrCreateListenerTable
 findOrCreateListenerTable = function(self, event, useWeakReference)
   assert(event, "invalid event:" .. tostring(event) .. ", self:" .. tostring(self))
@@ -93,6 +98,7 @@ emit = function(self, event, ...)
       local status, err = pcall(listener, ...)
       if not (status) then
         print("[events::" .. tostring(self) .. "::emit] err:" .. tostring(err))
+        traceback(err)
       end
     end
   end
@@ -103,6 +109,7 @@ emit = function(self, event, ...)
       local status, err = pcall(listener, ...)
       if not (status) then
         print("[events::" .. tostring(self) .. "::emit] err:" .. tostring(err))
+        traceback(err)
       end
     end
   end

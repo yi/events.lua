@@ -5,6 +5,11 @@ PREFIX_LISTENERS = "__listeners_"
 
 LEN_PREFIX_LISTENERS = PREFIX_LISTENERS\len!
 
+traceback = (err)->
+  print("LUA ERROR: " .. tostring(err) .. "\n")
+  print(debug.traceback("",2))
+
+
 findOrCreateListenerTable = (self, event, useWeakReference)->
   assert event, "invalid event:#{event}, self:#{@}"
   keyEvent = "#{PREFIX_LISTENERS}#{event}"
@@ -89,14 +94,24 @@ emit = (self, event, ...)->
   if type(listeners) == "table"
     for listener in pairs listeners
       status, err = pcall(listener, ...)
-      print "[events::#{self}::emit] err:#{err}" unless status
+      unless status
+        print "[events::#{self}::emit] err:#{err}"
+        traceback err
+        --print("LUA ERROR: " .. tostring(err) .. "\n")
+        --print(debug.traceback("",2))
+
 
   keyEvent = "#{PREFIX_LISTENERS}#{event}:once"                  -- call listeners only once
   listeners = rawget self, keyEvent
   if type(listeners) == "table"
     for listener in pairs listeners
       status, err = pcall(listener, ...)
-      print "[events::#{self}::emit] err:#{err}" unless status
+      unless status
+        print "[events::#{self}::emit] err:#{err}"
+        traceback err
+        --print("LUA ERROR: " .. tostring(err) .. "\n")
+        --print(debug.traceback("",2))
+      ----print "[events::#{self}::emit] err:#{err}" unless status
   rawset self, keyEvent, nil
 
   return self   -- chainable
